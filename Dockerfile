@@ -19,4 +19,5 @@ RUN dotnet publish "KariyerBackendApi.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "KariyerBackendApi.dll"]
+#ENTRYPOINT ["dotnet", "KariyerBackendApi.dll"]
+CMD dotnet KariyerBackendApi.dll
