@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  kariyerbackendapi:
+    image: ${DOCKER_REGISTRY-}kariyerbackendapi
+    build:
+      context: .
+      dockerfile: Dockerfile
