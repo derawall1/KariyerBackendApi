@@ -21,6 +21,7 @@ namespace KariyerBackendApi.Controllers
         }
 
         [HttpGet]
+        [Route("all")]
         public async Task<IActionResult> GetAllEmployers()
         {
             var employers = await _repository.GetAllEmployers();
@@ -33,7 +34,8 @@ namespace KariyerBackendApi.Controllers
             return NotFound();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("{id}/get")]
         public async Task<IActionResult> GetEmployersById(int id)
         {
 
@@ -48,6 +50,7 @@ namespace KariyerBackendApi.Controllers
         }
 
         [HttpPost]
+        [Route("create")]
         public async Task<IActionResult> CreateEmployer(CreateEmployerDto employer)
         {
             var response = new ResponseDto();
@@ -68,7 +71,8 @@ namespace KariyerBackendApi.Controllers
             return Ok(response);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("{id}/update")]
         public async Task<IActionResult> UpdateEmployer(int id, UpdateEmployerDto employer)
         {
             var response = new ResponseDto();
@@ -89,7 +93,8 @@ namespace KariyerBackendApi.Controllers
             return Ok(response);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("{id}/delete")]
         public async Task<IActionResult> DeleteEmployer(int id)
         {
             await _repository.DeletedEmployer(id);

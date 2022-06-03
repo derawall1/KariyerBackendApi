@@ -4,9 +4,7 @@ namespace KariyerBackendApi.Dtos;
 
 public class UpdateEmployerDto 
 {
-    [Required]
-    public string Id { get; set; } = string.Empty;
-
+  
     [Required]
 
     public string PhoneNumber { get; set; } = String.Empty;

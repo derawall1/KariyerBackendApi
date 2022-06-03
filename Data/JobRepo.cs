@@ -34,19 +34,20 @@ public class JobRepo : IJobRepo
 
         if (JobQuality > 0)
             job.JobPostingQuality = JobQuality;
-
+        job.PostedDate = DateTime.UtcNow;
+        job.LastUpdated = DateTime.UtcNow;
         await _dbContext.Jobs.AddAsync(job);
         await _dbContext.SaveChangesAsync();
     }
 
     public async Task<Job> GetJobById(int id)
     {
-        return await _dbContext.Jobs.FindAsync(id);
+        return await _dbContext.Jobs.Include(e => e.Employer).FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<IEnumerable<Job>> GetAllJobs()
     {
-        return await _dbContext.Jobs.ToListAsync();
+        return await _dbContext.Jobs.Include(e => e.Employer).ToListAsync();
     }
 
     public async Task UpdateJob(int id, Job job)
@@ -55,7 +56,21 @@ public class JobRepo : IJobRepo
         {
             throw new ArgumentOutOfRangeException(nameof(Job));
         }
+        var JobQuality = 0;
+        if (!string.IsNullOrEmpty(job.WorkType))
+            JobQuality += 1;
+        if (job.Salary > 0)
+            JobQuality += 1;
 
+        if (!string.IsNullOrEmpty(job.PreksAndBenefits))
+            JobQuality += 1;
+        var isGood = job.JobDescription.Where(s => Regex.Split(job.JobDescription, @"\W").Any(w => InconvenientWords.Contains(w)));
+        if (!isGood.Any())
+            JobQuality += 2;
+
+        if (JobQuality > 0)
+            job.JobPostingQuality = JobQuality;
+        job.LastUpdated = DateTime.UtcNow;
         _dbContext.Jobs.Update(job);
         await _dbContext.SaveChangesAsync();
     }
@@ -67,6 +82,27 @@ public class JobRepo : IJobRepo
 
         await _dbContext.SaveChangesAsync();
 
+    }
+
+    public async Task<IEnumerable<Job>> GetAllJobsByEmployerId(int employerId)
+    {
+        return await _dbContext.Jobs.Include(e=>e.Employer).Where(x=>x.Employer.Id == employerId).ToListAsync();
+    }
+
+    public async Task<IEnumerable<Job>> SearchJobs(string searchTerm, DateTime? dateFrom, DateTime? dateTo)
+    {
+        var jobs = await _dbContext.Jobs
+                    .Include(e => e.Employer)
+                    .Where(x=>
+                        (!string.IsNullOrWhiteSpace(searchTerm) || 
+                            (x.PositionTitle.Contains(searchTerm) || x.JobDescription.Contains(searchTerm) || x.PreksAndBenefits.Contains(searchTerm))
+                        ) &&
+                        ((dateFrom != null && dateTo != null) || 
+                            ((x.LastUpdated.Date >= dateFrom.Value.Date) && ( x.LastUpdated.Date <= dateTo.Value.Date) )
+                        )
+                    ).ToListAsync();
+
+        return jobs;
     }
 }
 

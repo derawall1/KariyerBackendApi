@@ -4,12 +4,7 @@ namespace KariyerBackendApi.Dtos;
 
 public class UpdateJobDto 
 { 
-    [Required]
-    public string Id { get; set; } = String.Empty;
-
-    [Required]
-
-    public string EmployerId { get; set; } = String.Empty;
+    
 
     [Required]
     public string PositionTitle { get; set; } = String.Empty;

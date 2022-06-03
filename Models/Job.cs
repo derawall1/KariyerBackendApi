@@ -38,10 +38,10 @@ public class Job
     public DateTime PostedDate { get; set; } 
 
   
-    public DateTime LastUpdated { get; set; } 
+    public DateTime LastUpdated { get; set; }
 
-   
-    public bool IsActive { get; set; }
+
+    public bool IsActive { get; set; } = true;
 
     public Employer Employer { get; set; } = new Employer();
 }

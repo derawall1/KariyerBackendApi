@@ -11,5 +11,10 @@ public interface IJobRepo
     Task DeletedJob(int id);
     Task<Job> GetJobById(int id);
     Task<IEnumerable<Job>> GetAllJobs();
+
+    Task<IEnumerable<Job>> GetAllJobsByEmployerId(int employerId);
+    Task<IEnumerable<Job>> SearchJobs(string searchTerm, DateTime? dateFrom, DateTime? dateTo);
+
+
 }
 
