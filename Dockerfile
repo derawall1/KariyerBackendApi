@@ -20,4 +20,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 #ENTRYPOINT ["dotnet", "KariyerBackendApi.dll"]
-CMD dotnet KariyerBackendApi.dll
+#CMD dotnet KariyerBackendApi.dll
+EXPOSE 8080
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet KariyerBackendApi.dll
