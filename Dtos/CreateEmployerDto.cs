@@ -17,7 +17,7 @@ public class CreateEmployerDto
     public string Address { get; set; } = String.Empty;
 
     [Required]
-    public int NumberOfJobAdsToPost { get; set; }
+    public int NumberOfJobAdsToPost { get; set; } = 2;
 
 }
 

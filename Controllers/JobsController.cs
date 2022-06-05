@@ -23,7 +23,7 @@ namespace KariyerBackendApi.Controllers
         }
 
         [HttpGet]
-        [Route("jobs/all")]
+        [Route("all")]
         public async Task<IActionResult> GetAllJobs()
         {
             var jobs = await _jobRepository.GetAllJobs();
@@ -50,8 +50,8 @@ namespace KariyerBackendApi.Controllers
             return NotFound();
         }
         [HttpGet]
-        [Route("jobs/search")]
-        public async Task<IActionResult> SearcgJobs([FromQuery] string searchTerm, [FromQuery] DateTime? dateFrom, [FromQuery] DateTime? dateTo)
+        [Route("search")]
+        public async Task<IActionResult> SearcgJobs([FromQuery] string? searchTerm = "", [FromQuery] DateTime? dateFrom = null, [FromQuery] DateTime? dateTo = null)
         {
             var jobs = await _jobRepository.SearchJobs(searchTerm,dateFrom, dateTo);
 
@@ -63,7 +63,7 @@ namespace KariyerBackendApi.Controllers
             return NotFound();
         }
         [HttpGet]
-        [Route("jobs/{id}/get")]
+        [Route("{id}/get")]
         public async Task<IActionResult> GetJobById(int id)
         {
 
@@ -78,7 +78,7 @@ namespace KariyerBackendApi.Controllers
         }
 
         [HttpPost]
-        [Route("employers/{employerId}/jobs/create")]
+        [Route("employers/{employerId}/create")]
         public async Task<IActionResult> CreateJob(int employerId, CreateJobDto job)
         {
             var response = new ResponseDto();
@@ -93,9 +93,20 @@ namespace KariyerBackendApi.Controllers
 
                 return BadRequest(response);
             }
+
+            if(employer.NumberOfJobAdsToPost <=0)
+            {
+                response.Message = "";
+                response.Error = "You don't have enough limit to post the job!";
+
+                return BadRequest(response);
+            }
+
             var objJob = _mapper.Map<Job>(job);
             objJob.Employer = employer;
             await _jobRepository.CreateJob(objJob);
+            employer.NumberOfJobAdsToPost = employer.NumberOfJobAdsToPost - 1;
+            await _employerRepository.UpdateEmployer(employer.Id, employer);
 
             response.Message = "Job created sucessfully!";
             response.Error = "";
@@ -104,7 +115,7 @@ namespace KariyerBackendApi.Controllers
         }
 
         [HttpPut]
-        [Route("employers/{employerId}/jobs/{id}/update")]
+        [Route("employers/{employerId}/{id}/update")]
         public async Task<IActionResult> UpdateJob(int employerId, int id, UpdateJobDto job)
         {
             var response = new ResponseDto();
@@ -131,7 +142,7 @@ namespace KariyerBackendApi.Controllers
         }
 
         [HttpDelete]
-        [Route("jobs/{id}/delete")]
+        [Route("{id}/delete")]
         public async Task<IActionResult> DeleteJob(int id)
         {
             await _jobRepository.DeletedJob(id);

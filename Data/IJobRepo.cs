@@ -13,7 +13,7 @@ public interface IJobRepo
     Task<IEnumerable<Job>> GetAllJobs();
 
     Task<IEnumerable<Job>> GetAllJobsByEmployerId(int employerId);
-    Task<IEnumerable<Job>> SearchJobs(string searchTerm, DateTime? dateFrom, DateTime? dateTo);
+    Task<IEnumerable<Job>> SearchJobs(string? searchTerm, DateTime? dateFrom, DateTime? dateTo);
 
 
 }

@@ -7,7 +7,7 @@ namespace KariyerBackendApi.Data;
 public class JobRepo : IJobRepo
 {
     private readonly DataContext _dbContext;
-    private readonly List<string> InconvenientWords =  new List<string>(){"rock star", "guru", "ninja", "dominant"};
+    private readonly List<string> InconvenientWords = new List<string>() { "rock star", "guru", "ninja", "dominant" };
     public JobRepo(DataContext dbContext)
     {
         _dbContext = dbContext;
@@ -25,7 +25,7 @@ public class JobRepo : IJobRepo
             JobQuality += 1;
         if (job.Salary > 0)
             JobQuality += 1;
-       
+
         if (!string.IsNullOrEmpty(job.PreksAndBenefits))
             JobQuality += 1;
         var isGood = job.JobDescription.Where(s => Regex.Split(job.JobDescription, @"\W").Any(w => InconvenientWords.Contains(w)));
@@ -86,21 +86,29 @@ public class JobRepo : IJobRepo
 
     public async Task<IEnumerable<Job>> GetAllJobsByEmployerId(int employerId)
     {
-        return await _dbContext.Jobs.Include(e=>e.Employer).Where(x=>x.Employer.Id == employerId).ToListAsync();
+        return await _dbContext.Jobs.Include(e => e.Employer).Where(x => x.Employer.Id == employerId).ToListAsync();
     }
 
-    public async Task<IEnumerable<Job>> SearchJobs(string searchTerm, DateTime? dateFrom, DateTime? dateTo)
+    public async Task<IEnumerable<Job>> SearchJobs(string? searchTerm, DateTime? dateFrom, DateTime? dateTo)
     {
-        var jobs = await _dbContext.Jobs
-                    .Include(e => e.Employer)
-                    .Where(x=>
-                        (!string.IsNullOrWhiteSpace(searchTerm) || 
-                            (x.PositionTitle.Contains(searchTerm) || x.JobDescription.Contains(searchTerm) || x.PreksAndBenefits.Contains(searchTerm))
-                        ) &&
-                        ((dateFrom != null && dateTo != null) || 
-                            ((x.LastUpdated.Date >= dateFrom.Value.Date) && ( x.LastUpdated.Date <= dateTo.Value.Date) )
-                        )
-                    ).ToListAsync();
+        var jobsQuery = _dbContext.Jobs.Include(e => e.Employer)
+                    .Where(x => DateTime.UtcNow.Date <= DateTime.UtcNow.Date.AddDays(x.Employer.NumberOfJobAdsToPost)).AsQueryable();
+
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            jobsQuery = jobsQuery.Where(s => s.PositionTitle.ToLower().Contains(searchTerm.ToLower()) || s.JobDescription.ToLower().Contains(searchTerm.ToLower()) || s.PreksAndBenefits.ToLower().Contains(searchTerm.ToLower()));
+        }
+        if (dateFrom != null && dateTo != null)
+        {
+            jobsQuery = jobsQuery.Where(d=> (d.LastUpdated >= dateFrom) && (d.LastUpdated <= dateTo));
+        }
+
+
+        var jobs = await jobsQuery.ToListAsync();
+
+
+
 
         return jobs;
     }

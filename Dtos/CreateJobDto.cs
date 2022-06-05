@@ -15,8 +15,7 @@ public class CreateJobDto
     public string JobDescription { get; set; } = String.Empty;
 
     [Required]
-    public int DurationOfJobPostAd { get; set; }
-
+    public int DurationOfJobPostAd { get; set; } = 15;
 
 
 
